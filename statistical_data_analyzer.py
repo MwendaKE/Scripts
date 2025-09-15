@@ -255,3 +255,11 @@ class DataAnalyzer:
 if __name__ == "__main__":
     analyzer = DataAnalyzer()
     analyzer.run_analysis()
+    
+'''
+• Normal = Most are average (heights, test scores)
+· Uniform = Everything equally likely (dice, cards)
+· Exponential = Waiting times (bus arrivals)
+· Poisson = Counting events (goals, birds)
+· Binomial = Yes/No results (makes/misses)
+'''

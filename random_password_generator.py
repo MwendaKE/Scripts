@@ -1,88 +1,89 @@
-"""
-Program will generate random passwords with a minimum length of 8 characters.
-"""
+'''
+Generates secure passwords by intelligently 
+combining username variations with random 
+characters while ensuring minimum length requirements.
+'''
 
 import string
 import random
 
-def truncate_name(name):
-    pass
+class PasswordGenerator:
+    """Generates secure random passwords with username integration"""
     
-def mix_name_case(name):
-    mixed_case_list = []
-    namelist = list(name)
+    def __init__(self, min_length=8):
+        self.min_length = min_length
+        self.special_chars = "&#!_@-$%=£"
     
-    for letter in namelist:
-        if namelist.index(letter) % 2 != 0:
-            letter = letter.upper()
-                
+    def mix_name_case(self, name):
+        """Alternate case for each character in name"""
+        return ''.join(char.upper() if i % 2 else char.lower() 
+                      for i, char in enumerate(name))
+    
+    def generate_password(self, username):
+        """Generate a secure password incorporating the username"""
+        # Apply random case transformation to username
+        case_options = [
+            username.upper,
+            username.lower,
+            username.capitalize,
+            lambda: self.mix_name_case(username)
+        ]
+        username = random.choice(case_options)()
+        
+        # Ensure password meets minimum length requirement
+        if len(username) < self.min_length:
+            needed_chars = self.min_length - len(username)
+            extra_chars = random.choices(string.digits + string.ascii_letters + self.special_chars, 
+                                        k=needed_chars)
+            password = username + ''.join(extra_chars)
         else:
-            letter = letter.lower()
-                
-        mixed_case_list.append(letter)
+            password = username
+        
+        # Add mandatory character types if missing
+        char_types = {
+            'digit': string.digits,
+            'upper': string.ascii_uppercase,
+            'special': self.special_chars
+        }
+        
+        for char_type, chars in char_types.items():
+            if not any(c in chars for c in password):
+                password += random.choice(chars)
+        
+        # Shuffle for randomness
+        password_list = list(password)
+        random.shuffle(password_list)
+        
+        return ''.join(password_list)
+
+
+def main():
+    generator = PasswordGenerator()
+    
+    print("\nSecure Password Generator")
+    print("-------------------------")
+    
+    while True:
+        print()
+        username = input(" > Enter Your First/Last Name: ").strip()
+        
+        if not username:
+            print("Please enter a valid name.")
+            continue
             
-    mixed_case = "".join(mixed_case_list)
-    
-    return mixed_case
-    
+        print("\n > Suggested Passwords:")
+        print()
         
-def generate_password(username):
-    possible_password = []
-    
-    digits = list(string.digits)
-    digits_choice = random.choice(string.digits)
-    letters_choice = random.choice(list(string.ascii_uppercase))
-    punctuations_choice = random.choice(list("&#!_@-$%=£"))
-    
-    min_pass_len = 8
-    
-    letter_design = random.choice([0, 1, 2, 3])
-    
-    if letter_design == 0:
-        username = username.upper()
+        for i in range(10):
+            password = generator.generate_password(username)
+            print(f"   {i+1:2d}. {password}")
         
-    elif letter_design == 1:
-        username = username.lower()
-        
-    elif letter_design == 2:
-        username = username.capitalize()
-        
-    else:
-        username = mix_name_case(username)
-    
-    
-    possible_password.append(username)
-    possible_password.append(letters_choice)
-    possible_password.append(punctuations_choice)
-    possible_password.append(digits_choice)
-    
-    password = "".join(possible_password)
-    
-    if len(password) < min_pass_len:
-        rem_len = min_pass_len - len(password)
-        
-        random.shuffle(digits)
-        
-        extra_chars = digits[:rem_len]
-        
-        possible_password.extend(extra_chars)
-        
-    random.shuffle(possible_password)
-    
-    password = "".join(possible_password)
-    
-    return password
-        
+        print()
+        again = input(" > Generate more passwords? (y/n): ").lower()
+        if again != 'y':
+            print("Stay secure! Goodbye!")
+            break
 
-print()
 
-while True:
-    print()      
-    username = str(input(" > Enter Your First / Second Name: "))
-    print()
-    print(" > Possible Passwords: ")
-    print()
-
-    for i in range(10):
-        password = generate_password(username)
-        print(f" > Password: {password}")
+if __name__ == "__main__":
+    main()
